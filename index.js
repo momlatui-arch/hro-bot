@@ -48,7 +48,7 @@ const client = new Client({
 });
 
 // =============================
-// ERROR HANDLING (BẮT LỖI ẨN)
+// ERROR HANDLING
 // =============================
 process.on("unhandledRejection", err => {
   console.error("❌ Unhandled Rejection:", err);
@@ -61,7 +61,7 @@ process.on("uncaughtException", err => {
 // =============================
 // CÀI ĐẶT
 // =============================
-const CHECK_MINUTES = 1;
+const CHECK_MINUTES = 1; // test nhanh 1 phút
 const ALLOWED_CHANNEL_ID = "1478082462113595494";
 const APPROVE_EMOJI = "✅";
 
@@ -90,44 +90,49 @@ client.once("ready", () => {
 // MESSAGE CREATE
 // =============================
 client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
-  if (!message.guild) return;
-  if (message.channel.id !== ALLOWED_CHANNEL_ID) return;
+  try {
+    if (message.author.bot) return;
+    if (!message.guild) return;
+    if (message.channel.id !== ALLOWED_CHANNEL_ID) return;
 
-  const isTRN = TRN_ROLE_IDS.some(id =>
-    message.member.roles.cache.has(id)
-  );
+    const isTRN = TRN_ROLE_IDS.some(id =>
+      message.member.roles.cache.has(id)
+    );
 
-  if (!isTRN) return;
+    if (!isTRN) return;
 
-  console.log(`📩 TRN gửi tin: ${message.author.tag}`);
+    console.log(`📩 TRN gửi tin: ${message.author.tag}`);
 
-  setTimeout(async () => {
-    try {
-      const fetched = await message.fetch().catch(() => null);
-      if (!fetched || fetched.deleted) return;
+    setTimeout(async () => {
+      try {
+        const fetched = await message.fetch().catch(() => null);
+        if (!fetched || fetched.deleted) return;
 
-      const reaction = fetched.reactions.cache.find(
-        r => r.emoji.name === APPROVE_EMOJI
-      );
+        const reaction = fetched.reactions.cache.find(
+          r => r.emoji.name === APPROVE_EMOJI
+        );
 
-      if (!reaction) {
-        return sendWarning(fetched);
+        if (!reaction) {
+          return sendWarning(fetched);
+        }
+
+        const users = await reaction.users.fetch();
+        const hasHRO = await checkHRO(users, message.guild);
+
+        if (!hasHRO) {
+          sendWarning(fetched);
+        } else {
+          console.log("✅ Đã được HRO duyệt");
+        }
+
+      } catch (err) {
+        console.log("❌ Lỗi khi check:", err);
       }
+    }, CHECK_MINUTES * 60 * 1000);
 
-      const users = await reaction.users.fetch();
-      const hasHRO = await checkHRO(users, message.guild);
-
-      if (!hasHRO) {
-        sendWarning(fetched);
-      } else {
-        console.log("✅ Đã được HRO duyệt");
-      }
-
-    } catch (err) {
-      console.log("❌ Lỗi khi check:", err);
-    }
-  }, CHECK_MINUTES * 60 * 1000);
+  } catch (err) {
+    console.log("❌ messageCreate error:", err);
+  }
 });
 
 // =============================
@@ -182,7 +187,9 @@ async function sendWarning(message) {
 client.on("messageReactionAdd", async (reaction, user) => {
   try {
     if (reaction.partial) await reaction.fetch();
+    if (reaction.message.partial) await reaction.message.fetch();
     if (user.bot) return;
+
     if (reaction.message.channel.id !== ALLOWED_CHANNEL_ID) return;
     if (reaction.emoji.name !== APPROVE_EMOJI) return;
 
