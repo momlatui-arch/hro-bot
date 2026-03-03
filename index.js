@@ -197,6 +197,10 @@ client.on("messageReactionAdd", async (reaction, user) => {
 // =============================
 // LOGIN
 // =============================
-client.login(process.env.TOKEN).catch(err => {
-  console.error("❌ LOGIN FAIL:", err);
-});
+client.login(process.env.TOKEN)
+  .then(() => {
+    console.log("🔑 Đăng nhập thành công");
+  })
+  .catch((err) => {
+    console.error("❌ Lỗi login Discord:", err);
+  });
