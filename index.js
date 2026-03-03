@@ -1,7 +1,14 @@
 // =============================
 // LOAD ENV
 // =============================
-require("dotenv").config();
+console.log("=================================");
+console.log("TOKEN:", process.env.TOKEN);
+console.log("=================================");
+
+if (!process.env.TOKEN || process.env.TOKEN.trim() === "") {
+  console.error("❌ TOKEN rỗng hoặc không tồn tại!");
+  process.exit(1);
+}
 
 console.log("=================================");
 console.log("TOKEN tồn tại không? ", !!process.env.TOKEN);
