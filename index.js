@@ -1,14 +1,16 @@
 // =============================
 // LOAD ENV
 // =============================
-console.log("=================================");
-console.log("TOKEN:", process.env.TOKEN);
-console.log("=================================");
+client.login(process.env.TOKEN);
 
-if (!process.env.TOKEN || process.env.TOKEN.trim() === "") {
-  console.error("❌ TOKEN rỗng hoặc không tồn tại!");
-  process.exit(1);
-}
+client.on("ready", () => {
+  console.log("=================================");
+  console.log(`✅ Bot online: ${client.user.tag}`);
+  console.log("=================================");
+});
+
+client.on("error", console.error);
+client.on("shardError", console.error);
 
 console.log("=================================");
 console.log("TOKEN tồn tại không? ", !!process.env.TOKEN);
