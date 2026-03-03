@@ -1,28 +1,20 @@
 // =============================
-// LOAD ENV
+// IMPORT
 // =============================
-client.login(process.env.TOKEN);
-
-client.on("ready", () => {
-  console.log("=================================");
-  console.log(`✅ Bot online: ${client.user.tag}`);
-  console.log("=================================");
-});
-
-client.on("error", console.error);
-client.on("shardError", console.error);
-
-console.log("=================================");
-console.log("TOKEN tồn tại không? ", !!process.env.TOKEN);
-console.log("=================================");
-
-if (!process.env.TOKEN) {
-  console.error("❌ TOKEN không tồn tại trong Environment Variables!");
-  process.exit(1);
-}
-
 const express = require("express");
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
+
+// =============================
+// CHECK TOKEN
+// =============================
+console.log("=================================");
+console.log("TOKEN length:", process.env.TOKEN ? process.env.TOKEN.length : 0);
+console.log("=================================");
+
+if (!process.env.TOKEN || process.env.TOKEN.trim() === "") {
+  console.error("❌ TOKEN rỗng hoặc không tồn tại!");
+  process.exit(1);
+}
 
 // =============================
 // EXPRESS SERVER (CHO RENDER)
@@ -57,20 +49,9 @@ const client = new Client({
 });
 
 // =============================
-// ERROR HANDLING
+// SETTINGS
 // =============================
-process.on("unhandledRejection", err => {
-  console.error("❌ Unhandled Rejection:", err);
-});
-
-process.on("uncaughtException", err => {
-  console.error("❌ Uncaught Exception:", err);
-});
-
-// =============================
-// CÀI ĐẶT
-// =============================
-const CHECK_MINUTES = 1; // test nhanh 1 phút
+const CHECK_MINUTES = 1;
 const ALLOWED_CHANNEL_ID = "1478082462113595494";
 const APPROVE_EMOJI = "✅";
 
@@ -226,12 +207,14 @@ client.on("messageReactionAdd", async (reaction, user) => {
 });
 
 // =============================
+// ERROR HANDLING
+// =============================
+process.on("unhandledRejection", console.error);
+process.on("uncaughtException", console.error);
+
+// =============================
 // LOGIN
 // =============================
 client.login(process.env.TOKEN)
-  .then(() => {
-    console.log("🔑 Đăng nhập thành công");
-  })
-  .catch((err) => {
-    console.error("❌ Lỗi login Discord:", err);
-  });
+  .then(() => console.log("🔑 Đăng nhập thành công"))
+  .catch(err => console.error("❌ Lỗi login Discord:", err));
