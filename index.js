@@ -3,8 +3,12 @@
 // =============================
 require("dotenv").config();
 
+console.log("=================================");
+console.log("TOKEN tồn tại không? ", !!process.env.TOKEN);
+console.log("=================================");
+
 if (!process.env.TOKEN) {
-  console.error("❌ TOKEN không tồn tại!");
+  console.error("❌ TOKEN không tồn tại trong Environment Variables!");
   process.exit(1);
 }
 
@@ -41,6 +45,17 @@ const client = new Client({
     Partials.Channel,
     Partials.Reaction
   ]
+});
+
+// =============================
+// ERROR HANDLING (BẮT LỖI ẨN)
+// =============================
+process.on("unhandledRejection", err => {
+  console.error("❌ Unhandled Rejection:", err);
+});
+
+process.on("uncaughtException", err => {
+  console.error("❌ Uncaught Exception:", err);
 });
 
 // =============================
